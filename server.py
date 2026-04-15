@@ -4,27 +4,38 @@ import os
 
 app = Flask(__name__)
 
-# Allow CORS (you can restrict later)
+# Allow CORS
 CORS(app)
+
 
 @app.route('/location', methods=['POST'])
 def location():
     try:
-        # Safely get JSON
         data = request.get_json(force=True, silent=True)
 
         if not data:
             print("❌ No data received")
             return jsonify({"error": "No data"}), 400
 
+        # 🌐 Get real client IP (handles proxies like Railway)
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+
+        # 📍 Get location data
         latitude = data.get('latitude')
         longitude = data.get('longitude')
         accuracy = data.get('accuracy')
 
-        # Log output (visible in Railway logs)
+        # 🧠 Optional extra info
+        user_agent = request.headers.get('User-Agent')
+
+        # 🖨️ Logs
+        print("\n===== NEW REQUEST =====")
+        print(f"🌐 IP Address: {ip}")
         print(f"📍 Latitude: {latitude}")
         print(f"📍 Longitude: {longitude}")
         print(f"🎯 Accuracy: {accuracy}")
+        print(f"🧾 User-Agent: {user_agent}")
+        print("=======================\n")
 
         return jsonify({"status": "success"}), 200
 
